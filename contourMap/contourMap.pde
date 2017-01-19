@@ -5,7 +5,8 @@ import peasy.*;
 import processing.pdf.*;
 PeasyCam cam;
 
-PImage img;
+PImage ref;
+PImage output;
 
 float levels = 10;
 //float factor = 1;      //Scale factor, not used.
@@ -23,16 +24,26 @@ void setup() {
   surface.setResizable(true);
 
   //img = loadImage("bkmap_contrast.png");
-  img = loadImage("map1.gif");
-  surface.setSize(img.width, img.height);
+  ref = loadImage("map1.gif");
+  
+  // create a copy of reference image with a black border
+  output = createImage(ref.width+2, ref.height+2, RGB);
+  for(int i=0; i < output.pixels.length; i++){
+    output.pixels[i] = color(0);
+  }
+  
+  output.updatePixels();
+  output.set(1, 1, ref);
+  
+  surface.setSize(output.width, output.height);
 
-  cam = new PeasyCam(this, img.width, img.height, 0, 1500);
+  cam = new PeasyCam(this, output.width, output.height, 0, 1500);
   colorMode(HSB, 360, 100, 100);
 
   for (int i=0; i<levels; i++) {
-    contours[i] = new BlobDetection(img.width, img.height);
+    contours[i] = new BlobDetection(output.width, output.height);
     contours[i].setThreshold(i/levels);
-    contours[i].computeBlobs(img.pixels);
+    contours[i].computeBlobs(output.pixels);
   }
 
   for (int i = 0; i < rings.size(); i++) {
@@ -115,15 +126,15 @@ void drawContours(int i) {
           
           if (eA !=null && eB !=null)
            line(
-           eA.x*img.width, eA.y*img.height, 
-           eB.x*img.width, eB.y*img.height 
+           eA.x*output.width, eA.y*output.height, 
+           eB.x*output.width, eB.y*output.height 
            );
            
-           println("eA.x: " + eA.x);
-           println("eA.y: " + eA.y);
-           println("eB.x: " + eB.x);
-           println("eB.y: " + eB.y);
-           println();
+           //println("eA.x: " + eA.x);
+           //println("eA.y: " + eA.y);
+           //println("eB.x: " + eB.x);
+           //println("eB.y: " + eB.y);
+           //println();
            
            ////////////
            
@@ -149,37 +160,37 @@ void drawContours(int i) {
            */
            
                  
-           //Checking if vertex has a point at x=0
-           if (b.getEdgeVertexA(m).x == 0 && b.getEdgeVertexB(b.getEdgeNb()).x == 0){
+           ////Checking if vertex has a point at x=0
+           //if (b.getEdgeVertexA(m).x == 0 && b.getEdgeVertexB(b.getEdgeNb()).x == 0){
                  
                  
-                 line(  b.getEdgeVertexA(0).x*img.width, b.getEdgeVertexA(0).y*img.height, 
-                        b.getEdgeVertexA(m).x*img.width, b.getEdgeVertexA(m).y*img.height   );
+           //      line(  b.getEdgeVertexA(0).x*output.width, b.getEdgeVertexA(0).y*output.height, 
+           //             b.getEdgeVertexA(m).x*output.width, b.getEdgeVertexA(m).y*output.height   );
                  
-                 println("////");
-                 println("making line (scaled to width and height): ");
-                 //println(eA.x, eA.y, eB.x, eB.y);
-                 println(  b.getEdgeVertexA(0).x*img.width, b.getEdgeVertexA(0).y*img.height, 
-                        b.getEdgeVertexA(m).x*img.width, b.getEdgeVertexA(m).y*img.height   );
+           //      println("////");
+           //      println("making line (scaled to width and height): ");
+           //      //println(eA.x, eA.y, eB.x, eB.y);
+           //      println(  b.getEdgeVertexA(0).x*output.width, b.getEdgeVertexA(0).y*output.height, 
+           //             b.getEdgeVertexA(m).x*output.width, b.getEdgeVertexA(m).y*output.height   );
                  
-                 println("////");
-           }
+           //      println("////");
+           //}
            
            //Checking if vertex has a point at y=0
-           if (b.getEdgeVertexA(m).y == 0 && b.getEdgeVertexB(b.getEdgeNb()).y == 0){
+           //if (b.getEdgeVertexA(m).y == 0 && b.getEdgeVertexB(b.getEdgeNb()).y == 0){
              
-             line(  b.getEdgeVertexA(0).x*img.width, b.getEdgeVertexA(0).y*img.height, 
-                        b.getEdgeVertexA(m).x*img.width, b.getEdgeVertexA(m).y*img.height   );
+           //  line(  b.getEdgeVertexA(0).x*output.width, b.getEdgeVertexA(0).y*output.height, 
+           //             b.getEdgeVertexA(m).x*output.width, b.getEdgeVertexA(m).y*output.height   );
                  
-                 println("////");
-                 println("making line (scaled to width and height): ");
-                 //println(eA.x, eA.y, eB.x, eB.y);
-                 println(  b.getEdgeVertexA(0).x*img.width, b.getEdgeVertexA(0).y*img.height, 
-                        b.getEdgeVertexA(m).x*img.width, b.getEdgeVertexA(m).y*img.height   );
+           //      println("////");
+           //      println("making line (scaled to width and height): ");
+           //      //println(eA.x, eA.y, eB.x, eB.y);
+           //      println(  b.getEdgeVertexA(0).x*output.width, b.getEdgeVertexA(0).y*output.height, 
+           //             b.getEdgeVertexA(m).x*output.width, b.getEdgeVertexA(m).y*output.height   );
                  
-                 println("////");
+           //      println("////");
                  
-           }
+           //}
            
            
            ////////////
