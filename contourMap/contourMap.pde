@@ -8,6 +8,12 @@ PeasyCam cam;
 PImage ref;
 PImage output;
 
+String filename = "SmallEarth.png";
+
+int blobMaxNb = 1000; 
+int blobLinesMaxNb = 10100; 
+int blobTrianglesMaxNb = 500;
+
 float levels = 10;
 //float factor = 1;      //Scale factor, not used.
 //float elevation = 50;  //Not used.
@@ -23,8 +29,8 @@ void setup() {
   size(480, 360, P3D);
   surface.setResizable(true);
 
-  //img = loadImage("bkmap_contrast.png");
-  ref = loadImage("map1.gif");
+  //ref = loadImage("bkmap_contrast.png");
+  ref = loadImage(filename);
   
   // create a copy of reference image with a black border
   output = createImage(ref.width+2, ref.height+2, RGB);
@@ -42,8 +48,10 @@ void setup() {
 
   for (int i=0; i<levels; i++) {
     contours[i] = new BlobDetection(output.width, output.height);
+    contours[i].setConstants(blobMaxNb, blobLinesMaxNb, blobTrianglesMaxNb);
     contours[i].setThreshold(i/levels);
     contours[i].computeBlobs(output.pixels);
+    println("blobs in level " + i + " : " + contours[i].getBlobNb());
   }
 
   for (int i = 0; i < rings.size(); i++) {
@@ -66,12 +74,12 @@ void draw() {
   for (int i = 0; i<levels; i++){
   //for (int i=2; i<3; i++) {  
     
-    beginRecord(SVG, "level-"+i+".svg");
+    beginRecord(SVG, filename+"_level_"+i+".svg");
     
     drawContours(i);
     println("drew level " + i);
     
-    println("saved as: level-"+i+".svg");
+    println("saved as: " + filename + "_level_"+i+".svg");
     endRecord();
     println();
     
@@ -112,7 +120,7 @@ void drawContours(int i) {
     //println("b2: ",b2.x,b2.y,b2.w,b2.h); 
     
     //Condition for drawing only blobs bigger than 5% of width and 5% of height
-    if(b.w*width>.05*width && b.h*height>.05*height){
+    if(b.w*width>.01*width && b.h*height>.01*height){
       
       if (b!=null) {
         stroke(250, 75, 90);
