@@ -8,11 +8,11 @@ PeasyCam cam;
 PImage ref;
 PImage output;
 
-String filename = "SmallEarth.png";
+String filename = "Taiwan_high_contrast.png";
 
-int blobMaxNb = 1000; 
-int blobLinesMaxNb = 10100; 
-int blobTrianglesMaxNb = 500;
+int blobMaxNb = 2000; 
+int blobLinesMaxNb = 10500; 
+int blobTrianglesMaxNb = 5000;
 
 float levels = 10;
 //float factor = 1;      //Scale factor, not used.
@@ -32,6 +32,9 @@ void setup() {
   //ref = loadImage("bkmap_contrast.png");
   ref = loadImage(filename);
   
+  // threshold calculator
+  
+  
   // create a copy of reference image with a black border
   output = createImage(ref.width+2, ref.height+2, RGB);
   for(int i=0; i < output.pixels.length; i++){
@@ -44,11 +47,15 @@ void setup() {
   surface.setSize(output.width, output.height);
 
   cam = new PeasyCam(this, output.width, output.height, 0, 1500);
+  
+  //smooth(8);
+  
   colorMode(HSB, 360, 100, 100);
 
   for (int i=0; i<levels; i++) {
     contours[i] = new BlobDetection(output.width, output.height);
     contours[i].setConstants(blobMaxNb, blobLinesMaxNb, blobTrianglesMaxNb);
+    //contours[i].setPosDiscrimination(true);
     contours[i].setThreshold(i/levels);
     contours[i].computeBlobs(output.pixels);
     println("blobs in level " + i + " : " + contours[i].getBlobNb());
@@ -73,20 +80,26 @@ void draw() {
   
   for (int i = 0; i<levels; i++){
   //for (int i=2; i<3; i++) {  
-    
-    beginRecord(SVG, filename+"_level_"+i+".svg");
-    
-    drawContours(i);
-    println("drew level " + i);
-    
-    println("saved as: " + filename + "_level_"+i+".svg");
-    endRecord();
-    println();
-    
-    if(i == levels-1){
-      println("finished");
+    if(contours[i].getBlobNb() > 0)
+    {
+      beginRecord(SVG, filename+"_level_"+i+".svg");
+      
+      drawContours(i);
+      println("drew level " + i);
+      
+      println("saved as: " + filename + "_level_"+i+".svg");
+      endRecord();
+      println();
+      
+      if(i == levels-1){
+        println("finished");
+      }
     }
-    
+  
+    else
+    {
+      println("level: " + i + " has no blobs");
+    }
   }
   
   System.out.println("Number of blobs (rings.size()): " + rings.size());
@@ -106,6 +119,7 @@ void drawContours(int i) {
   Blob b;
   Blob b2;    //Used for displacing previous blob by width and height of b2
   EdgeVertex eA, eB;
+  
   for (int n=0; n<contours[i].getBlobNb(); n++) {
     b=contours[i].getBlob(n);
     
@@ -116,14 +130,12 @@ void drawContours(int i) {
       b2 = contours[i].getBlob(n-1);
     }
     
-    //println("b: ",b.x,b.y,b.w,b.h);
-    //println("b2: ",b2.x,b2.y,b2.w,b2.h); 
-    
     //Condition for drawing only blobs bigger than 5% of width and 5% of height
     if(b.w*width>.01*width && b.h*height>.01*height){
       
       if (b!=null) {
-        stroke(250, 75, 90);
+        stroke(255, 0, 0);
+        strokeJoin(ROUND);
   
         for (int m=0; m<b.getEdgeNb(); m++) {
           eA = b.getEdgeVertexA(m);
@@ -134,8 +146,8 @@ void drawContours(int i) {
           
           if (eA !=null && eB !=null)
            line(
-           eA.x*output.width, eA.y*output.height, 
-           eB.x*output.width, eB.y*output.height 
+             eA.x*output.width, eA.y*output.height, 
+             eB.x*output.width, eB.y*output.height 
            );
            
            //println("eA.x: " + eA.x);
@@ -143,8 +155,6 @@ void drawContours(int i) {
            //println("eB.x: " + eB.x);
            //println("eB.y: " + eB.y);
            //println();
-           
-           ////////////
            
            /*if (
                eA.x == 0 ||
